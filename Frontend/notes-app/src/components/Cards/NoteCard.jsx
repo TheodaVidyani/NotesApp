@@ -15,7 +15,7 @@ const NoteCard = ({
     <div className="border rounded p-8 bg-white hover:shadow-xl transition-all ease-in-out">
       <div className="flex items-center justify-between">
         <div>
-          <h6 className="text-sm font-medium">{title}</h6>
+          <h6 className="text-sm font-medium">{moment(date).format("MMM DD, YYYY")}</h6>
           <span className="text-sm text-slate-500">{date}</span>
         </div>
         <MdOutlinePushPin
@@ -25,7 +25,7 @@ const NoteCard = ({
       </div>
       <p className="text-xs text-slate-600 mt-2">{content?.slice(0, 60)}</p>
       <div className="flex items-center justify-between mt-2">
-        <div className="text-xs text-slate-500">{tags}</div>
+        <div className="text-xs text-slate-500">{tags.map((item)=>`#${item}`)}</div>
         <div className="flex items-center gap-2">
           <MdCreate
             className="icon-btn hover:text-green-600"

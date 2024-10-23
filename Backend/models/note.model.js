@@ -6,7 +6,7 @@ const noteSchema = new Schema({
     content: {type:String, required:true},
     tags: {type:[String], default:[]},
     isPinned: {type:Boolean, default:false},    
-    userID: {type:String},
+    userID: {type:String, required:true},
     CreatedOn: {type:Date, default:new Date().getTime()},
 });
 

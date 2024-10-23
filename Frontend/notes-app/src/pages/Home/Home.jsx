@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import NavBar from '../../components/NavBar/NavBar';
 import NoteCard from '../../components/Cards/NoteCard';
 import { MdAdd } from 'react-icons/md';
-import AddEditNotes from './AddeditNotes';
+import AddEditNotes from './AddEditNotes';
 import Modal from 'react-modal';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +20,10 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [allNotes, setAllNotes] = useState([]);
   const navigate = useNavigate();
+
+  const handleEdit = (noteDetails) => {
+    setOpenAddEditModal({ isShown: true, type: "edit", data: noteDetails });
+  };
 
   //Get user Info
   const getUserInfo = async () => {
@@ -66,13 +70,12 @@ useEffect(() => {
                     <NoteCard
                     key= {item._id}
                     title={item.title}
-                    date={moment(item.createdOn).format("MMM DD, YYYY")}
-                    content={item.content}
+                    date={item.createdOn ? moment(item.createdOn).format("MMM DD, YYYY") : "Unknown Date"}                    content={item.content}
                     tags={item.tags}
                     isPinned={item.isPinned}
-                    onEdit={() => {}}
                     onDelete={() => {}}
                     onPinNote={() => {}}
+                    onEdit={() => handleEdit(item)}
                   />
             ))}
 
@@ -102,7 +105,9 @@ useEffect(() => {
         noteData={openAddEditModal.data}
         onClose={() =>{
           setOpenAddEditModal({ isShown: false, type: "add", data: null });
-        }}/>
+        }}
+        getAllNotes={getAllNotes}
+        />
         </Modal> 
     </>
   );
