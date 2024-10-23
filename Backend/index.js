@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use(
     cors({
-    origin: 'http://localhost:3000',
+    origin: '*', 
 })
 );
 
@@ -46,7 +46,17 @@ const user = new User({
 
 await user.save();
 
-const accessToken = jwt.sign({email: user.email}, process.env.ACCESS_TOKEN_SECRET);
+//Generation of JWT token, we typically generate it in our Node.js backend. The JWT token is usually created when a user successfully logs in or registers, and the server responds with a token that the client can use for subsequent requests.
+const accessToken = jwt.sign({_id: user._id, email: user.email}, process.env.ACCESS_TOKEN_SECRET);
+
+    // Here's how it works:
+
+    // jwt.sign(): This function is used to generate a JWT token.
+    // Payload: You're including the email of the user as the payload (data) in the token.
+    // Secret: The second argument, process.env.ACCESS_TOKEN_SECRET, is the secret key used to sign the token. This ensures the token's integrity and allows verification later.
+    // The token is then sent back to the client in the response. The client can store this token and use it to authenticate future requests to the server.
+    // The client typically stores the token in local storage or a cookie and sends it in the Authorization header of subsequent requests to the server.
+    // The server can then verify the token using jwt.verify() and extract the user information from the token.
 
 return res.status(201).json({message: "Account created successfully", accessToken});
 });
@@ -68,12 +78,24 @@ app.post('/login', async (req, res) => {
     }
 
     if(userInfo.password === password){
-        const accessToken = jwt.sign({email: userInfo.email}, process.env.ACCESS_TOKEN_SECRET);
+        const accessToken = jwt.sign({_id: userInfo._id, email: userInfo.email}, process.env.ACCESS_TOKEN_SECRET);
         return res.status(200).json({message: "Login successful", accessToken});
-    }
-    else{
+    }else{
         return res.status(400).json({message: "Invalid Credentials."});
     }
+});
+
+//Get user
+app.get('/get-user', authenticateToken, async (req, res) => {
+    const {user} = req.user;
+    const isUser = await User.findOne({_id: user._id, email: user.email});
+    if(!isUser){
+        return res.status(404).json({message: "User not found"});
+    }
+    return res.json({
+        user:{fullName: isUser.fullName, email: isUser.email, "_id": isUser._id, createdOn: isUser.createdOn},
+        message: "User fetched successfully"
+    });
 });
 
 
@@ -184,7 +206,7 @@ app.put('/update-pin-status/:noteId', authenticateToken, async (req, res) => {
         }
 
         // Update the isPinned status
-        if(isPinned) note.isPinned = isPinned;
+        note.isPinned = isPinned;
 
         await note.save();  // Save the updated note
 

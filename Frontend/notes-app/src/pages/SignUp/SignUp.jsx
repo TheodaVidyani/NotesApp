@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import NavBar from '../../components/NavBar/NavBar';
 import { Link } from 'react-router-dom';
 import PasswordInput from '../../components/Input/PasswordInput';
+import axiosInstance from '../../utils/axiosinstance';
+import { validateEmail } from '../../utils/helper';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
 
@@ -9,6 +12,8 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   // // Function to validate email format
   // const validateEmail = (email) => {
@@ -21,30 +26,54 @@ const SignUp = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-      
-  if (!name) {
-    setError("Please enter your name.");
-    return;
-  }
+    if (!name) {
+      setError("Please enter your name.");
+      return;
+    }
 
-  
-  if (!validateEmail(email)) {
-    setError("Please enter a valid email address.");
-    return;
-  }
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
 
-  
-  if (!password) {
-    setError("Please enter the password.");
-    return;
-  }
+    if (!password) {
+      setError("Please enter the password.");
+      return;
+    }
 
-        // Continue with Signup logic (e.g., API call)
-        console.log("Signing Up in with:", email, password);
-        setError('')
+    // Continue with Signup logic (e.g., API call)
+    console.log("Signing Up in with:", email, password);
+    setError("");
 
-        //Signup API call
+    //Signup API call
+    try {
+      const response = await axiosInstance.post("/create-account", {
+        fullName: name,
+        email: email,
+        password: password,
+      });
+      //handle successful register
+      if (response.data && response.data.error) {
+        setError(response.data.message);
+        return;
+      }
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again later.");
+      }
+    }
   };
+
 
 
   return (

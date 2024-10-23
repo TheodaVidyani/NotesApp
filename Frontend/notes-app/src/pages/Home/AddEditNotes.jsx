@@ -53,7 +53,7 @@ const AddEditNotes = ({noteData, type, onClose}) => {
           className="text-2xl text-slate-950 outline-none"
           placeholder="Go to gym at 5"
           value={title}
-          onClick={({ target }) => setTitle(target.value)}
+          onChange={({ target }) => setTitle(target.value)}
         />
       </div>
       <div className="flex flex-col gap-2 mt-4">
@@ -65,7 +65,8 @@ const AddEditNotes = ({noteData, type, onClose}) => {
           placeholder="Content"
           rows={10}
           value={content}
-          onClick={({ target }) => setContent(target.value)}
+          onChange={({ target }) => setContent(target.value)}
+          //In React, the onChange event handler is used to capture changes made to form elements like <input>, <textarea>, and <select>. It listens for user input and triggers a function whenever the value of the element changes (e.g., when the user types in an input field).
         />
       </div>
       <div className="mt-3">
