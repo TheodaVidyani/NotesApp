@@ -3,7 +3,7 @@ import TagInput from '../../components/Input/TagInput';
 import { MdClose } from 'react-icons/md';
 import axiosInstance from '../../utils/axiosinstance';
 
-const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
+const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }) => {
   const [title, setTitle] = useState(noteData?.title || "");
   const [content, setContent] = useState(noteData?.content || "");
   const [tags, setTags] = useState(noteData?.tags || []);
@@ -17,7 +17,8 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
         content,
         tags,
       });
-      if (response.data && response.data.message) {
+      if (response.data && response.data.note) {
+        showToastMessage("Note Added Successfully.");
         getAllNotes();
         onClose();
       }
@@ -39,6 +40,7 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
         tags,
       });
       if (response.data && response.data.message) {
+        showToastMessage("Note Updated Successfully.");
         getAllNotes();
         onClose();
       }
@@ -48,6 +50,7 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
       }
     }
   };
+
 
   const handleAddNote = () => {
     if (!title) {
@@ -100,7 +103,7 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
 
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       <button className="btn-primary font-medium mt-5 p-3" onClick={handleAddNote}>
-        {type=== 'edit' ? 'UPDATE' : 'ADD'}
+        {type === 'edit' ? 'UPDATE' : 'ADD'}
       </button>
     </div>
   );

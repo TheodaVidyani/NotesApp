@@ -172,7 +172,7 @@ app.get('/get-all-notes', authenticateToken, async (req, res) => {
             // Access the user object from the request
             const {user} = req.user;
     try {
-        // Find notes associated with the user, sorted by isPinned and CreatedOn
+        // Find notes associated with the user, sorted by isPinned and createdOn
         const notes = await Note.find({
             userID: user._id
         }).sort({ isPinned: -1});
@@ -238,6 +238,31 @@ app.put('/update-pin-status/:noteId', authenticateToken, async (req, res) => {
         return res.status(500).json({message: "Internal Server Error"});
     }
 });
+
+// Search Notes API creation - Happned in Backend index.js, the intergration will happen in Frontend Home.jsx 
+app.get('/search-noes', authenticateToken, async (req, res) => {
+    const {user} = req.user;
+    const {query} = req.query;
+
+    if(!query){
+        return res.status(400).json({error: true, message: "Query is required"});
+    }
+
+    try {
+        // Find the note by its ID and ensure it belongs to the authenticated user
+        const matchingNotes = await Note.find({
+            userID: user._id,
+        $or: [
+            {title: {$regex: new RegExp(query, "i")}},
+            {content: {$regex: new RegExp(query, "i")}},
+        ],
+        });
+        return res.json({error:false, notes: matchingNotes, message: "Notes Retrieved Successfully"});
+    } catch (err) {
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+});
+
 
 app.listen(8000);
 

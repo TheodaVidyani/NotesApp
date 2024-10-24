@@ -3,7 +3,7 @@ import ProfileInfo from '../Cards/ProfileInfo';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../SearchBar/SearchBar';
 
-  const NavBar = ({userInfo}) => {
+  const NavBar = ({userInfo, onSearchNote, handleClearSearch}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate(); //() - added parentheses to invoke the hook. Without this, navigate will be undefined.
 
@@ -14,6 +14,9 @@ import SearchBar from '../SearchBar/SearchBar';
 
   const handleSearch = () => {
     //Add search logic here.
+    if (searchQuery) {
+      onSearchNote(searchQuery);
+    }
   };
 
   const onClearSearch = () => {
