@@ -44,8 +44,15 @@ const Home = () => {
   const getUserInfo = async () => {
     try{
       const response = await axiosInstance.get('/get-user');
+      console.log(response); // Check if the response exists and is structured correctly
+
+      //I got an error in my vite console, Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'status') at getUserInfo (Home.jsx:52:27). This suggests that somewhere in my getUserInfo function, I am trying to access the status property from a response or object that is undefined. This usually happens when the response from the API (or some other asynchronous operation) is either undefined or the object you are trying to access hasn't been properly initialized.
+      //So I had to check the API call and the response structure to ensure that the response.data object exists and has the user property before trying to access it. I added a console.log(response) check to ensure that response.data and response.data.user exist before trying to access the user property. And the results came our error free.
+
+       // Assuming response.data holds the data
       if(response.data && response.data.user){
         setUserInfo(response.data.user);
+        console.log("User info set:", response.data.user);
       }
     }catch(error){
         console.log(error);
@@ -60,6 +67,7 @@ const Home = () => {
     const getAllNotes = async () => {
       try{
         const response = await axiosInstance.get('/get-all-notes');
+        console.log("Fetched Notes:", response.data.notes);
         if(response.data && response.data.notes){
           setAllNotes(response.data.notes);
         }

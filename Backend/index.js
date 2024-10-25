@@ -5,7 +5,12 @@ const authenticateToken = require('./utilities');
 const config = require('./config');
 const mongoose = require('mongoose');
 
-mongoose.connect(config.connectionString);
+mongoose.connect(config.connectionString)
+.then(() => console.log('Database connected'))
+  .catch(err => {
+    console.error("Connection error:", err);
+  });
+//The code starting from .then was included to check if there are any error and caatch them.
 
 const User = require('./models/user.model');
 const Note = require('./models/note.model');
@@ -26,6 +31,8 @@ app.use(
 app.get('/', (req, res) => {
     res.json({data: "hello"})
 });
+
+//BackEnd routes
 
 //create account - API
 app.post('/create-account', async (req, res) => {
@@ -128,9 +135,11 @@ app.post('/add-note', authenticateToken, async (req, res) => {
         //Here, by const note = new Note({...}), we're creating a new note object using the Note model. We're setting the title, content, tags, and userID fields of the note object based on the request data and the authenticated user's email.
         await note.save();
         //Here, by await note.save(), we're saving the newly created note to the database. The save() method is used to insert a new document into the database.
-        return res.status(201).json({message: "Note added successfully"});
+        return res.status(201).json({ error: false, message: "Note added successfully", 
+            note: note,  // <-- include the newly created note in the response. If not, only the message will be sent back. No reflect in the frontend. 
+        });
     }catch(err){
-        return res.status(500).json({message: "Internal Server Error"});    
+        return res.status(500).json({error: true, message: "Internal Server Error"});    
     }
 });
 

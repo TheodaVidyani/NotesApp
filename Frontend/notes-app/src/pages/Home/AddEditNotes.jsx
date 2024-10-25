@@ -10,6 +10,7 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }
   const [error, setError] = useState(null);
 
   // Add note
+  //The addNewNote function in my frontend code connects to the backend API via an HTTP POST request.
   const addNewNote = async () => {
     try {
       const response = await axiosInstance.post('/add-note', {
@@ -17,13 +18,21 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }
         content,
         tags,
       });
+      //This line sends an HTTP POST request to the backend endpoint /add-note.
+      //Payload: It includes title, content, and tags in the request body, as JSON data. The backend will access these through req.body.title, req.body.content, and req.body.tags.
+      console.log("API Response:", response.data); // Log the full response from the API
+
       if (response.data && response.data.note) {
         showToastMessage("Note Added Successfully.");
+        console.log("Note added successfully:", response.data.note); // Log the added note details
         getAllNotes();
-        onClose();
+        console.log("Notes refreshed after adding new note."); // Confirm that notes were refreshed
+        onClose(); // Close the note form/modal   
       }
     } catch (error) {
+      console.error("Error adding note:", error); // Log the error if the API call fails
       if (error.response && error.response.data && error.response.data.message) {
+        console.error("Error message from server:", error.response.data.message); // Log specific error message from the server
         setError(error.response.data.message);
       }
     }
