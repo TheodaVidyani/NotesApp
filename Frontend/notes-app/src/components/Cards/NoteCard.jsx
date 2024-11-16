@@ -1,5 +1,9 @@
+//NoteCard.jsx
+
 import React from "react";
 import {MdOutlinePushPin, MdCreate, MdDelete} from "react-icons/md";
+import moment from 'moment';
+
 
 const NoteCard = ({
   title,
@@ -20,7 +24,7 @@ const NoteCard = ({
           </h6>
           {/* moment is a JavaScript library used to format, manipulate, and display dates and times.
               In this code, moment(date) takes a date object and formats it into a readable string with the format "MMM DD, YYYY". */}
-          <span className="text-sm text-slate-500">{date}</span>
+         {/* <span className="text-sm text-slate-500">{date}</span> */}
           {/* This displays the raw date value inside a <span> element. The class text-sm makes the text small, and text-slate-500 applies a specific color (from a color utility framework like Tailwind CSS). */}
         </div>
         <MdOutlinePushPin
@@ -35,6 +39,10 @@ const NoteCard = ({
           onClick={onPinNote}
         />
       </div>
+
+       {/* Display the title of the note */}
+       <h2 className="text-lg font-semibold mt-2">{title}</h2>
+      {/* The title is now displayed here with a larger font size (text-lg) and bold (font-semibold) */}
       <p className="text-xs text-slate-600 mt-2">{content?.slice(0, 60)}</p>
       {/* mt-2 adds a top margin (spacing).
           content?.slice(0, 60) ensures that only the first 60 characters of the content string are displayed. The ?. is optional chaining, which means if content is undefined or null, it won't throw an error, but will gracefully handle it. */}

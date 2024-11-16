@@ -89,8 +89,8 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }
         <label className="input-label">Title</label>
         <input
           type="text"
-          className="text-2xl text-slate-950 outline-none"
-          placeholder="Go to gym at 5"
+          className="text-sm  text-slate-950 outline-none"
+          placeholder="Required*"
           value={title}
           onChange={({ target }) => setTitle(target.value)} // Changed onClick to onChange
         />
@@ -99,7 +99,7 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }
         <label className="input-label">Content</label>
         <textarea
           className="text-sm text-slate-950 outline-none bg-slate-50 p-2 rounded"
-          placeholder="Content"
+          placeholder="Required*"
           rows={10}
           value={content}
           onChange={({ target }) => setContent(target.value)} // Changed onClick to onChange

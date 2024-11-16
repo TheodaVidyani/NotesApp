@@ -1,3 +1,5 @@
+//user.model.js contains the user schema and model for the user collection in the database.
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

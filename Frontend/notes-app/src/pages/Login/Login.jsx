@@ -42,8 +42,9 @@ const Login = () => {
         email: email,
         password: password,
       });
-      //handle successful login
       console.log(response.data);
+
+      //Handle successful login
       if (response.data && response.data.accessToken) {
         localStorage.setItem("token", response.data.accessToken);
         navigate("/dashboard");

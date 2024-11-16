@@ -58,7 +58,9 @@ const user = new User({
 await user.save();
 
 //Generation of JWT token, we typically generate it in our Node.js backend. The JWT token is usually created when a user successfully logs in or registers, and the server responds with a token that the client can use for subsequent requests.
-const accessToken = jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET);
+const accessToken = jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: '36000m',
+});
 
     // Here's how it works:
  
@@ -74,6 +76,7 @@ return res.status(201).json({message: "Account created successfully", accessToke
 
 app.post('/login', async (req, res) => {
     const {email, password} = req.body;
+
     if(!email || !password){
         return res.status(400).json({message: "All fields are required"});
     }
@@ -86,7 +89,10 @@ app.post('/login', async (req, res) => {
 
     if(userInfo.email == email && userInfo.password === password){
         const user = {user:userInfo};
-        const accessToken = jwt.sign( user, process.env.ACCESS_TOKEN_SECRET);
+        const accessToken = jwt.sign( user, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: '36000m',
+        });
+
         return res.status(200).json({message: "Login successful", accessToken});
     }else{
         return res.status(400).json({message: "Invalid Credentials."});
@@ -128,11 +134,11 @@ app.post('/add-note', authenticateToken, async (req, res) => {
         const note = new Note({
             title,
             content,
-            tags: tags ? tags : [],
+            tags: tags || [],
             //What is meant by tags ? tags : [] in the code is that if the tags are provided in the request, we use those tags; otherwise, we use an empty array.
-            userID: user.email,
+            userId: user._id,
         });
-        //Here, by const note = new Note({...}), we're creating a new note object using the Note model. We're setting the title, content, tags, and userID fields of the note object based on the request data and the authenticated user's email.
+        //Here, by const note = new Note({...}), we're creating a new note object using the Note model. We're setting the title, content, tags, and userId fields of the note object based on the request data and the authenticated user's email.
         await note.save();
         //Here, by await note.save(), we're saving the newly created note to the database. The save() method is used to insert a new document into the database.
         return res.status(201).json({ error: false, message: "Note added successfully", 
@@ -151,12 +157,12 @@ app.put('/edit-note/:noteId', authenticateToken, async (req, res) => {
     const {title, content, tags, isPinned} = req.body;
     const {user} = req.user;
 
-    if(!title || !content){
-        return res.status(400).json({message: "Title and Content are required"});
+    if(!title && !content && !tags){
+        return res.status(400).json({message: "No changes provided."});
     }
     try{
-        const note = await Note.findOne({_id: noteId, userID: user._id});
-        //The userID in the backend is being extracted from the authenticated user object using req.user, which is valid as long as the authenticateToken middleware attaches the user to the request object. 
+        const note = await Note.findOne({_id: noteId, userId: user._id});
+        //The userId in the backend is being extracted from the authenticated user object using req.user, which is valid as long as the authenticateToken middleware attaches the user to the request object. 
        //The findOne method is used to find a single document in the database that matches the specified query criteria. In this case, we're checking if a note with the specified ID and user ID exists in the database.
        //If the note is found, we update the note's title, content, tags, and isPinned fields based on the request data. We then save the updated note to the database using the save() method.
        //The edit-note route is used to update an existing note in the database. The route expects the note ID to be passed as a URL parameter and the updated note data to be sent in the request body. The route also requires authentication, as only authenticated users should be able to edit notes.
@@ -177,13 +183,13 @@ app.put('/edit-note/:noteId', authenticateToken, async (req, res) => {
 });
 
 //Get All Notes
-app.get('/get-all-notes', authenticateToken, async (req, res) => {
+app.get('/get-all-notes/', authenticateToken, async (req, res) => {
             // Access the user object from the request
             const {user} = req.user;
     try {
         // Find notes associated with the user, sorted by isPinned and createdOn
         const notes = await Note.find({
-            userID: user._id
+            userId: user._id
         }).sort({ isPinned: -1});
         //What is meant by upper code is that we're using the Note model to find all notes associated with the authenticated user. 
         //We're filtering the notes based on the user's ID and sorting them by the isPinned field in descending order. 
@@ -204,9 +210,9 @@ app.delete('/delete-note/:noteId', authenticateToken, async (req, res) => {
 
     try {
         // Find the note to delete and ensure it's owned by the authenticated user
-        const note = await Note.findOneAndDelete({
+        const note = await Note.findOne({
             _id: noteId,
-            userID: user._id
+            userId: user._id
         });
         //or here we can just use findOne and then later deleteOne
 
@@ -214,6 +220,11 @@ app.delete('/delete-note/:noteId', authenticateToken, async (req, res) => {
             // If no note was found or the user doesn't own it, return a 404
             return res.status(404).json({ message: "Note not found." });
         }
+
+        await Note.deleteOne({
+            _id: noteId,
+            userId: user._id
+        });
 
         // If deletion was successful, return a success message
         return res.status(200).json({ message: "Note deleted successfully" });
@@ -226,19 +237,19 @@ app.delete('/delete-note/:noteId', authenticateToken, async (req, res) => {
 //Edit isPinned value
 // Update isPinned value
 app.put('/update-pin-status/:noteId', authenticateToken, async (req, res) => {
-    const {noteId} = req.params.noteId;
+    const noteId  = req.params.noteId;
     const {isPinned} = req.body;
     const {user} = req.user;
 
     try {
         // Find the note by its ID and ensure it belongs to the authenticated user
-        const note = await Note.findOne({_id: noteId, userID: user._id});
+        const note = await Note.findOne({_id: noteId, userId: user._id});
         if (!note) {
             return res.status(404).json({message: "Note not found"});
         }
 
         // Update the isPinned status
-        note.isPinned = isPinned;
+        if (isPinned) note.isPinned = isPinned;
 
         await note.save();  // Save the updated note
 
@@ -260,7 +271,7 @@ app.get('/search-noes', authenticateToken, async (req, res) => {
     try {
         // Find the note by its ID and ensure it belongs to the authenticated user
         const matchingNotes = await Note.find({
-            userID: user._id,
+            userId: user._id,
         $or: [
             {title: {$regex: new RegExp(query, "i")}},
             {content: {$regex: new RegExp(query, "i")}},

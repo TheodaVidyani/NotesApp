@@ -73,6 +73,10 @@ const Home = () => {
         }
       }catch(error){
         console.log("Unexpected Error occured. Try again later.");
+        if(error.response.status === 401){
+          localStorage.clear();
+          navigate('/login');
+        }
       }
     };
 

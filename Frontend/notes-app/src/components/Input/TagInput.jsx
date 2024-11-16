@@ -46,7 +46,7 @@ const TagInput = ({ tags, setTags}) => {
           type="text"
           value={inputValue}
           className="text-sm bg-transparent border px-3 py-4 rounded outline-none"
-          placeholder="Add Tags"
+          placeholder="Add Tags - Add fun"
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
         />
