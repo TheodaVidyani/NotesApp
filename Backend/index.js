@@ -260,7 +260,7 @@ app.put('/update-pin-status/:noteId', authenticateToken, async (req, res) => {
 });
 
 // Search Notes API creation - Happned in Backend index.js, the intergration will happen in Frontend Home.jsx 
-app.get('/search-noes', authenticateToken, async (req, res) => {
+app.get('/search-notes', authenticateToken, async (req, res) => {
     const {user} = req.user;
     const {query} = req.query;
 

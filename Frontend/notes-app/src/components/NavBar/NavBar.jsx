@@ -14,7 +14,7 @@ import SearchBar from '../SearchBar/SearchBar';
 
   const handleSearch = () => {
     //Add search logic here.
-    if (searchQuery) {
+    if (searchQuery) { 
       onSearchNote(searchQuery);
     }
   };
